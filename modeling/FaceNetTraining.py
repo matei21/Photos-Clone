@@ -1,5 +1,6 @@
 import os
 import random
+from pathlib import Path
 import cv2
 import uuid
 import torch
@@ -14,6 +15,9 @@ from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import adjusted_rand_score, silhouette_score
+
+
+BASE_DIR = Path(__file__).resolve().parent
 
 #directml
 try:
@@ -47,13 +51,13 @@ class TinyFaceNet(nn.Module):
 #triplet
 class FaceTripletDataset(Dataset):
     def __init__(self, dataset_path, num_triplets=2000):
-        self.dataset_path = dataset_path
+        self.dataset_path = Path(dataset_path)
         self.num_triplets = num_triplets
         self.person_to_images = {}
 
         all_images = []
         for ext in ['*.jpg', '*.png', '*.JPG', '*.PNG']:
-            all_images.extend(glob(os.path.join(dataset_path, "**", ext), recursive=True))
+            all_images.extend(glob(str(self.dataset_path / "**" / ext), recursive=True))
 
         for img_path in all_images:
             person = os.path.basename(os.path.dirname(img_path))
@@ -129,13 +133,13 @@ def train_model(model, device, dataset_path, epochs=50, batch_size=128):
         print(f"Epoch {epoch + 1} Average Loss: {running_loss / len(dataloader):.4f}")
 
     print("Saving trained weights to facenet_trained.pth")
-    torch.save(model.state_dict(), "facenet_trained.pth")
+    torch.save(model.state_dict(), str(BASE_DIR / "facenet_trained.pth"))
     print("Training complete!")
 
 
 #qdrant
 def setup_qdrant():
-    client = QdrantClient(path="./face_cluster_db")
+    client = QdrantClient(path=str(BASE_DIR / "face_cluster_db"))
     collection_name = "casia_faces"
     if not client.collection_exists(collection_name):
         client.create_collection(
@@ -153,7 +157,7 @@ def embed_dataset(model, client, collection_name, dataset_path="dataset", max_im
 
     image_paths = []
     for ext in ['*.jpg', '*.png', '*.JPG', '*.PNG']:
-        image_paths.extend(glob(os.path.join(dataset_path, "**", ext), recursive=True))
+        image_paths.extend(glob(str(Path(dataset_path) / "**" / ext), recursive=True))
 
     image_paths = sorted(image_paths)[:max_images]
 
@@ -229,9 +233,9 @@ if __name__ == "__main__":
         print("⚠torch-directml not installed. Defaulting to CPU.")
 
     model = TinyFaceNet().to(device)
-    dataset_dir = "dataset"
+    dataset_dir = BASE_DIR / "dataset"
 
-    if os.path.exists(dataset_dir):
+    if dataset_dir.exists():
         # train
         train_model(model, device, dataset_dir, epochs=50, batch_size=128)
 

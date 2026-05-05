@@ -14,3 +14,10 @@ backend/.venv/
 # Frontend
 frontend/node_modules/
 frontend/dist/
+
+.venv/
+.claude/
+backend/debug_faces/
+backend/faces/
+backend/models/*.pth
+backend/qdrant_db/.lock

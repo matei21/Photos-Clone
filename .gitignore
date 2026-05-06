@@ -1,17 +1,17 @@
-# Default ignored files
+
 .idea/
 __pycache__/
 
-# Modeling data
+
 modeling/dataset/
 modeling/dataset.zip
 modeling/face_cluster_db/
 
-# Backend
+
 backend/venv/
 backend/.venv/
 
-# Frontend
+
 frontend/node_modules/
 frontend/dist/
 

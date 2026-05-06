@@ -48,15 +48,19 @@ const DatabaseManager = ({ onUpdate }) => {
       <div className="db-manager-header">
         <h2>Database Inventory ({faces.length} faces)</h2>
         <div className="db-actions">
-          <button className="refresh-button" onClick={fetchFaces} disabled={loading}>Refresh</button>
+          <button className="secondary-button" onClick={fetchFaces} disabled={loading}>Refresh</button>
           <button className="clear-button" onClick={handleClearAll} disabled={loading}>Clear All</button>
         </div>
       </div>
 
       {loading ? (
-        <div className="loading">Loading database content...</div>
+        <div className="loading" style={{ textAlign: 'center', padding: '2rem' }}>
+          <p>Syncing with Qdrant...</p>
+        </div>
       ) : faces.length === 0 ? (
-        <div className="no-data">Database is empty.</div>
+        <div className="no-data" style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-secondary)' }}>
+          <p>Database is currently empty.</p>
+        </div>
       ) : (
         <div className="faces-inventory-grid">
           {faces.map((face) => (
@@ -68,7 +72,7 @@ const DatabaseManager = ({ onUpdate }) => {
                 />
               </div>
               <div className="face-info">
-                <span className="face-id-label">ID: {face.id.substring(0, 8)}...</span>
+                <span className="face-id-label">{face.id.substring(0, 8)}</span>
                 <button 
                   className="delete-small-button" 
                   onClick={() => handleDelete(face.id)}
